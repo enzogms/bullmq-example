@@ -1,8 +1,7 @@
 import { Request, Response } from "express";
-import { Mail } from "../../lib/mail";
-import { mailConfig } from "../../config/mail";
+import RegistrationNewsletter from "../../lib/bullMq/jobs/RegistrationNewsletter";
 import IORedis from "ioredis";
-import { Queue } from "bullmq";
+import { Queue, Worker } from "bullmq";
 import { defaultJobOptions } from "../../lib/bullMq/constants/defaultJobOptions";
 
 export class NewsletterController {
@@ -10,11 +9,23 @@ export class NewsletterController {
 
   async subscribe(req: Request, res: Response) {
     const { email, name } = req.body;
+    const { key, handle } = RegistrationNewsletter;
 
-    // send email and save to database
-    const connection = new IORedis();
+    const connection = new IORedis({ maxRetriesPerRequest: null });
     const queue = new Queue("Newsletter", { connection, defaultJobOptions });
-    const job = await queue.add("RegistrationNewsletter", { email, name });
+    const job = await queue.add(key, { email, name });
+
+    const worker = new Worker(
+      "Newsletter",
+      async (job) => {
+        console.log(`Processing job of type ${key}`);
+        await handle({ data: job.data });
+        console.log(`Job completed`);
+      },
+      { connection, autorun: false }
+    );
+
+    worker.run();
 
     return res.status(200).json({
       message: `User ${name} subscribed with email ${email}`,
