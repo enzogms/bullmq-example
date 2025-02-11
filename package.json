@@ -11,11 +11,14 @@
     "@types/express": "^5.0.0",
     "@types/node": "^22.13.1",
     "@types/redis": "^4.0.11",
+    "add": "^2.0.6",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3"
   },
   "dependencies": {
+    "@types/nodemailer": "^6.4.17",
     "bullmq": "^5.40.2",
+    "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "nodemailer": "^6.10.0",
     "redis": "^4.7.0"

@@ -1,3 +1,4 @@
+import "dotenv/config";
 import express from "express";
 import newsletterRouter from "./modules/newsletter/newsletter.router";
 
